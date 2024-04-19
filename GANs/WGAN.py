@@ -1,3 +1,4 @@
+"""WGAN-GP"""
 import os
 import numpy as np
 import torch
@@ -9,11 +10,15 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
 import datetime
 
+#define generator
 class Generator(nn.Module):
     def __init__(self, noise_dim=100, feature_dim=3, channels=3, time_steps=1000):
         super(Generator, self).__init__()
+        #set attributes
         self.channels = channels
         self.time_steps = time_steps
+
+        #sequential model for generator
         self.model = nn.Sequential(
             
             nn.Linear(noise_dim + feature_dim, 64),
@@ -43,7 +48,7 @@ class Generator(nn.Module):
             nn.Linear(1024, channels * time_steps),
             nn.Tanh()
         )
-    
+    #Xavier initialisation
     def initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
@@ -52,17 +57,19 @@ class Generator(nn.Module):
                     nn.init.zeros_(m.bias)
 
     def forward(self, noise, features):
+        #forward pass
         x = torch.cat((noise, features), dim=1)
         output = self.model(x)
         return output.view(-1, self.channels, self.time_steps)
 
-
+#define discriminator
 class Discriminator(nn.Module):
     def __init__(self, feature_dim, channels, time_steps=1000):
         super(Discriminator, self).__init__()
+        #set attribvutes
         self.channels = channels
         self.time_steps = time_steps
-
+        #sequential model
         self.model = nn.Sequential(
 
             nn.Linear(channels*time_steps+feature_dim, 1024),
@@ -80,7 +87,7 @@ class Discriminator(nn.Module):
             nn.Linear(128, 64),
             nn.LeakyReLU(0.2, True)
         )
-    
+    #Xavier Initialisation
     def initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
@@ -89,10 +96,12 @@ class Discriminator(nn.Module):
                     nn.init.zeros_(m.bias)
 
     def forward(self, img, features):
+        #forward pass
         img_flat = img.view(img.size(0), -1)
         x = torch.cat((img_flat, features), dim=1)
         return self.model(x)
 
+#main WGAN class
 class WGAN:
     def __init__(self, channels, batchsize, noise_dim, feature_dim):
         self.device = 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -109,7 +118,7 @@ class WGAN:
         self.optimiser_G = optim.Adam(self.generator.parameters(), lr=0.0001, betas=(0.1, 0.999))
         self.optimiser_D = optim.Adam(self.discriminator.parameters(), lr=0.0002, betas=(0.9, 0.999))
         
-
+    #GP calculation
     def compute_gradient_penalty(self, real_images, fake_images, features):
         #random weight term for interpolation between real and fake samples
         alpha = torch.rand(real_images.size(0), 1, device=self.device)
@@ -152,7 +161,7 @@ class WGAN:
                 noise = torch.randn(imgs.size(0), self.noise_dim, device=self.device)
                 gen_imgs = self.generator(noise, features)
 
-                # Training Discriminator
+                #training discriminator
                 self.optimiser_D.zero_grad()
                 real_decision = self.discriminator(real_imgs, features).mean()
                 fake_decision = self.discriminator(gen_imgs.detach(), features).mean()
@@ -163,7 +172,7 @@ class WGAN:
                 d_real_correct += (real_decision < 0).sum().item()
                 d_fake_correct += (fake_decision > 0).sum().item()
 
-                # Gradient penalty
+                #gradient penalty
                 gradient_penalty = self.compute_gradient_penalty(real_imgs, gen_imgs, features) * lambda_gp
                 d_loss = fake_decision - real_decision + gradient_penalty
 
@@ -175,7 +184,7 @@ class WGAN:
                 d_fake_loss_sum += d_fake_loss.item()
                 n_batches += 1
 
-                # Training Generator
+                #train generator every nth interation (5/10 seems to be optimal)
                 if i % 10 == 0:
                     self.optimiser_G.zero_grad()
                     gen_loss = -self.discriminator(gen_imgs, features).mean()
@@ -210,7 +219,7 @@ class WGAN:
         torch.save(self.generator.state_dict(),f'./Model_States/WGAN_GP/wgan_generator_{current_datetime}.pth')
         os.makedirs(save_path, exist_ok=True)
         
-        # Plotting losses and accuracies
+        #plotting losses and accuracies
         plt.figure(figsize=(15, 5))
 
         plt.subplot(2, 2, 1)

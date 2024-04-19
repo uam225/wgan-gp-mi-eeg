@@ -10,7 +10,7 @@ This README provides instructions on how to use the various scripts included in 
 Data Preparation
 Download Data: First, download the necessary EEG data from (https://figshare.com/articles/code/shu_dataset/19228725/1).
 
-Feature Extraction: Run the feature extractor available on this repository, which is adapted from the dataset's toolbox, to extract relevant channels and save the CSP features.
+Feature Extraction: Run the feature extractor available on this repository (ws.py), which is adapted from the dataset's toolbox, to extract relevant channels and save the CSP features.
 
 Training the GAN
 Train the Model: In train_GAN.py, choose the model configuration you wish to run by uncommenting the required lines. The generated samples will be saved in the specified directory.

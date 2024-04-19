@@ -14,7 +14,7 @@ ch_names = ["Cz", "C3", "C4"]
 event_id = {'left': 1,'right':2}
 
 def get_data(subj,session,data_path):
-    da=sio.loadmat(join(data_path,'sub-'+str(subj).zfill(3)+'_ses-'+str(session).zfill(2)+'_task_motorimagery_eeg.mat')) #da=sio.loadmat(join(data_path,'SHU_dataset','sub-'+str(subj).zfill(3)+'_ses-'+str(session).zfill(2)+'_task_motorimagery_eeg.mat'))
+    da=sio.loadmat(join(data_path,'sub-'+str(subj).zfill(3)+'_ses-'+str(session).zfill(2)+'_task_motorimagery_eeg.mat')) 
     data=da['data']
     labels=np.ravel(da['labels'])
     cz_index, c3_index, c4_index = 11, 12, 13

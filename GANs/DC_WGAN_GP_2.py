@@ -53,7 +53,7 @@ class Discriminator(nn.Module):
             nn.Dropout(0.5),
             nn.Flatten(),
         )
-        self.linear = nn.Linear(512 * 16, 1)  # Assuming fixed size after convolutions
+        self.linear = nn.Linear(512 * 16, 1)  #assuming fixed size after convolutions
 
     def forward(self, img, features):
         img_features = torch.cat((img, features), 1)

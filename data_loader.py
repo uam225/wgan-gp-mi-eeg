@@ -29,7 +29,7 @@ class EEGFeatureDataset(Dataset):
                 features_no = features.shape[1]
 
                 '''for trial in range(min_trials):
-                    # Normalize each EEG data trial using z-score normalization
+                    #normalise each EEG data trial using z-score normalization
                     trial_data = data[trial]
                     trial_mean = np.mean(trial_data)
                     trial_std = np.std(trial_data)
@@ -37,13 +37,13 @@ class EEGFeatureDataset(Dataset):
                     flattened_data = normalized_trial_data.flatten()
                     self.data_samples.append(flattened_data)
 
-                    # Normalize each feature vector (already using z-score normalization)
+                    #normalise each feature vector (already using z-score normalization)
                     trial_features = features[trial]
                     trial_features = (trial_features - np.mean(trial_features)) / np.std(trial_features)
                     self.feature_samples.append(trial_features)'''
 
                 for trial in range(min_trials):
-                    # Normalize each EEG data trial
+                    #normalize each EEG data trial
                     trial_data = data[trial]
                     trial_data_min = np.min(trial_data)
                     trial_data_max = np.max(trial_data)
@@ -51,12 +51,12 @@ class EEGFeatureDataset(Dataset):
                     flattened_data = normalized_trial_data.flatten()
                     self.data_samples.append(flattened_data)
 
-                    # Normalize each feature vector
+                    #normalize each feature vector
                     trial_features = features[trial]
                     trial_features = (trial_features - np.mean(trial_features)) / np.std(trial_features)
                     self.feature_samples.append(trial_features)
 
-        # Convert lists to numpy arrays
+        
         self.data_samples = np.array(self.data_samples)
         self.feature_samples = np.array(self.feature_samples)
 

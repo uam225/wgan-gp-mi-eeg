@@ -55,8 +55,8 @@ class Critic(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             nn.Dropout(0.5)
         )
-        self.fc_features = nn.Linear(feature_dim, 512)  # Feature dimension to match conv output
-        self.fc_final = nn.Linear(64 * 512 , 1)  # Combining conv output and feature processing output
+        self.fc_features = nn.Linear(feature_dim, 512)  #feature dimension to match conv output
+        self.fc_final = nn.Linear(64 * 512 , 1)  #combining conv output and feature processing output
 
     def forward(self, img, features):
         img_output = self.conv_model(img).view(img.size(0), -1)
@@ -147,7 +147,3 @@ class WCDCGAN:
 
         return fake_imgs.detach()
 
-# Example of how you might initialize and train the model:
-# wcdcgan = WCDCGAN(channels=3, batchsize=50, noise_dim=100, feature_dim=3)
-# data_loader = DataLoader(...)  # Assume you have a DataLoader for your data
-# wcdcgan.train(data_loader, epochs=10)

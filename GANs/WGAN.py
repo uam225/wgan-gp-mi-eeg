@@ -15,24 +15,31 @@ class Generator(nn.Module):
         self.channels = channels
         self.time_steps = time_steps
         self.model = nn.Sequential(
+            
             nn.Linear(noise_dim + feature_dim, 64),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(64),
+            
             nn.Linear(64, 128),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(128),
+            
             nn.Linear(128, 256),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(256),
+            
             nn.Linear(256, 512),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(512),
+            
             nn.Linear(512, 512),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(512),
+            
             nn.Linear(512, 1024),
             nn.LeakyReLU(0.02, True), 
             nn.BatchNorm1d(1024),
+            
             nn.Linear(1024, channels * time_steps),
             nn.Tanh()
         )
@@ -57,14 +64,19 @@ class Discriminator(nn.Module):
         self.time_steps = time_steps
 
         self.model = nn.Sequential(
+
             nn.Linear(channels*time_steps+feature_dim, 1024),
             nn.LeakyReLU(0.02, inplace=True),
+            
             nn.Linear(1024, 512),
             nn.LeakyReLU(0.02, True),
+            
             nn.Linear(512, 256),
             nn.LeakyReLU(0.02, inplace=True),
+            
             nn.Linear(256, 128),
             nn.LeakyReLU(0.2, True),
+            
             nn.Linear(128, 64),
             nn.LeakyReLU(0.2, True)
         )
@@ -94,20 +106,17 @@ class WGAN:
         self.generator = Generator(noise_dim=noise_dim, feature_dim=feature_dim, channels=channels).to(self.device)
         self.discriminator = Discriminator(channels=channels, feature_dim=feature_dim).to(self.device)
 
-        self.optimiser_G = optim.Adam(self.generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+        self.optimiser_G = optim.Adam(self.generator.parameters(), lr=0.0001, betas=(0.1, 0.999))
         self.optimiser_D = optim.Adam(self.discriminator.parameters(), lr=0.0002, betas=(0.9, 0.999))
         
 
     def compute_gradient_penalty(self, real_images, fake_images, features):
-        # Random weight term for interpolation between real and fake samples
-        #print('real image shape: ', real_images.shape)
+        #random weight term for interpolation between real and fake samples
         alpha = torch.rand(real_images.size(0), 1, device=self.device)
         #print('alpha shape: ', alpha.shape)
         alpha = alpha.expand(real_images.size(0),real_images.size(1))
 
-        # Get random interpolation between real and fake images
-        #print('alpha shape after expand: ', alpha.shape)
-        #print('Fake images shape ', fake_images.shape)
+        #get random interpolation between real and fake samples
         fake_images_flat = fake_images.view(fake_images.size(0), -1)
         interpolated = (alpha * real_images + (1 - alpha) * fake_images_flat).requires_grad_(True)
         decision = self.discriminator(interpolated, features)
@@ -119,7 +128,8 @@ class WGAN:
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, data_loader, epochs, lambda_gp=1, save_interval=100):
+    def train(self, data_loader, epochs, lambda_gp=100, save_interval=100):
+
         d_losses, g_losses = [], []
         d_real_losses, d_fake_losses = [], []
         d_real_acc, d_fake_acc = [], []
@@ -134,7 +144,7 @@ class WGAN:
             d_real_correct, d_fake_correct = 0, 0
             n_batches = 0
             g_updates = 0
-            d_updates = 0
+            
 
             for i, (imgs, features) in enumerate(data_loader):
                 real_imgs = imgs.float().to(self.device)
@@ -143,7 +153,6 @@ class WGAN:
                 gen_imgs = self.generator(noise, features)
 
                 # Training Discriminator
-                #if i % 100 == 0:
                 self.optimiser_D.zero_grad()
                 real_decision = self.discriminator(real_imgs, features).mean()
                 fake_decision = self.discriminator(gen_imgs.detach(), features).mean()
@@ -199,8 +208,8 @@ class WGAN:
                     np.save(os.path.join(save_path, f'generated_samples_epoch_{epoch}.npy'), generated_samples.cpu().numpy())
 
         torch.save(self.generator.state_dict(),f'./Model_States/WGAN_GP/wgan_generator_{current_datetime}.pth')
-        #torch.save(self.discriminator.state_dict(),f'./Model_States/WGAN_GP/wgan_discriminator_{current_datetime}.pth')
         os.makedirs(save_path, exist_ok=True)
+        
         # Plotting losses and accuracies
         plt.figure(figsize=(15, 5))
 
@@ -226,5 +235,3 @@ class WGAN:
         plt.savefig(f'./Training_Plots/WGAN_GP_training_plots/training_losses_epochs_{epochs}_{current_datetime}.png')
         plt.show()
         plt.close()
-      
-

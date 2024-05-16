@@ -1,4 +1,4 @@
-# bsc-project-source-code-files-2023-24-uam225
+
 Condtiional WGAN for EEG Data Synthesis
 
 This is the repository for the Wasserstein Generative Adversarial Network (WGAN) designed to generate synthetic motor imagery EEG data. Developed as part of the final year project for BSc Data Science & Computing at Birkbeck College, University of London.

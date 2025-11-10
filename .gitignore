@@ -1,0 +1,26 @@
+# Byte-compiled / optimised / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# macOS metadata
+.DS_Store
+
+# Datasets, checkpoints, and generated sample dumps
+*.mat
+*.pth
+*.npy
+*.edf
+Training_Samples/
+Model_States/
+model_states/
+Generated_Samples_Eval/
+dc_wgan_gp_generated_samples*/
+wgan_generated_samples*/
+training_plots/
+Training_Plots/

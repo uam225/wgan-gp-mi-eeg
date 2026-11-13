@@ -1,6 +1,6 @@
 # Wasserstein Generative Adversarial Network with Common Spatial Patterns for Motor Imagery EEG Synthesis
 
-**BSc Data Science & Computing Final Year Dissertation **  
+**BSc Data Science & Computing Final Year Dissertation**  
 Birkbeck College, University of London
 
 ---
